@@ -1,0 +1,38 @@
+name: 单元测试自动化
+
+# 触发条件：当代码推送到main分支或创建PR到main分支时
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  test:
+    # 在Ubuntu系统上运行
+    runs-on: ubuntu-latest
+
+    steps:
+      # 步骤1：拉取代码到CI服务器
+      - name: 拉取代码
+        uses: actions/checkout@v3
+
+      # 步骤2：安装JDK 17（根据项目实际JDK版本调整）
+      - name: 配置JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: '25'
+          distribution: 'temurin'
+
+      # 步骤3：使用Maven运行单元测试并生成报告
+      - name: 运行单元测试
+        run: mvn clean test jacoco:report  # 执行测试并生成覆盖率报告
+
+      # 步骤4：（可选）上传测试报告（方便在GitHub查看）
+      - name: 上传测试报告
+        uses: actions/upload-artifact@v3
+        with:
+          name: 测试报告
+          path: |
+            target/surefire-reports/
+            target/site/jacoco/
